@@ -18,21 +18,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider appearance={{baseTheme: dark}}>
+    // <ClerkProvider appearance={{ baseTheme: dark }}>
     <html lang="en" suppressHydrationWarning>
-     
       <body className={font.className}>
-      <ThemeProvider
-       attribute="class"
-       defaultTheme="system"
-       enableSystem
-       disableTransitionOnChange
-      >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
         </ThemeProvider>
-        </body>
-     
+      </body>
     </html>
-    </ClerkProvider>
+    // </ClerkProvider>
   );
 }

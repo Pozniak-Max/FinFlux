@@ -1,22 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher(['/site, /api/uploadthing']);
+const isPublicRoute = createRouteMatcher([
+  "/agency/sign-in(.*)",
+  "/site(.*)",
+  "/api/uploadthing(.*)",
+]);
 
-// Middleware function to handle redirection
-export function middleware(req: NextRequest) {
+export default clerkMiddleware((auth, req) => {
   const { pathname } = req.nextUrl;
 
-  // Check if the request is for the root path
-  if (pathname === '/' && !isPublicRoute(req)) {
-    // Redirect to the login page
-    return NextResponse.redirect(new URL('/agency/sign-in', req.url));
+  // Redirect from / to /site
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/site", req.url));
   }
 
-  // For all other paths, do nothing (proceed to the requested resource)
-  return NextResponse.next();
-}
+  // Protect routes that are not public
+  if (!isPublicRoute(req)) {
+    auth().protect();
+  }
+});
 
 export const config = {
-  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
+  ],
 };
